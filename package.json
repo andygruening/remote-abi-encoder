@@ -1,0 +1,36 @@
+{
+  "name": "sequence-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@0xsequence/auth": "^2.2.9",
+    "@0xsequence/network": "^2.2.9",
+    "@discordjs/rest": "^2.4.0",
+    "discord-api-types": "^0.37.105",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5",
+    "form-data": "^4.0.1",
+    "jose": "^5.9.6",
+    "jwks-rsa": "^3.1.0",
+    "node-telegram-bot-api": "^0.66.0"
+  },
+  "devDependencies": {
+    "@0xsequence/metadata": "^2.0.26",
+    "@cloudflare/workers-types": "^4.20250129.0",
+    "@linear/sdk": "^32.0.0",
+    "@types/node": "^22.9.0",
+    "@types/node-telegram-bot-api": "^0.64.7",
+    "@types/ws": "^8.5.13",
+    "openai": "^4.71.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3",
+    "wrangler": "^3.100.0"
+  }
+}
