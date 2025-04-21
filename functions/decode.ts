@@ -19,11 +19,26 @@ export const onRequest: PagesFunction<Env> = async (context) => {
                 const functionAbiEntry = functionAbi.find((f) => f.name === functionName);
                 const outputComponents = functionAbiEntry.outputs[0].components;
 
-                const result: Record<string, string> = {};
+                const result: Record<string, any> = {};
                 for (let index = 0; index < outputComponents.length; index++) {
-                    const name = outputComponents[index].name;
-                    const value = decoded[0][index];
-                    result[name] = value.toString();
+                    const { name, type } = outputComponents[index];
+                    let value: any = decoded[0][index];
+
+                    if (type.startsWith("uint") || type.startsWith("int")) {
+                        try {
+                            // Try number first, fallback to BigInt for large values
+                            const asNumber = Number(value.toString());
+                            value = Number.isSafeInteger(asNumber) ? asNumber : BigInt(value.toString());
+                        } catch {
+                            value = BigInt(value.toString());
+                        }
+                    } else if (type === "bytes32" || type.startsWith("bytes")) {
+                        value = value.toString(); // keep hex string
+                    } else if (type === "address") {
+                        value = value.toLowerCase(); // normalize
+                    }
+
+                    result[name] = value;
                 }
 
                 return getResponse(JSON.stringify(result));
