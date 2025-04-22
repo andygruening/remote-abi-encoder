@@ -8,16 +8,16 @@ export const onRequest: PagesFunction<Env> = async (context) => {
                 return getResponse(JSON.stringify({msg: 'options throughput'}))
             case "POST":
                 const payload = await context.request.json();
-                const functionName = payload.functionName as string;
-                const functionAbi = payload.abi as any[];
+                const abi = payload.abi as any;
                 const decodedInput = payload.decodedInput as string;
 
-                const i = new ethers.Interface(functionAbi);
+                const fnName = abi.name;
 
-                const decoded = i.decodeFunctionResult(functionName, decodedInput);
+                //TODO: Make an object containing all output types
+                const outputComponents = abi.outputs[0].components;
 
-                const functionAbiEntry = functionAbi.find((f) => f.name === functionName);
-                const outputComponents = functionAbiEntry.outputs[0].components;
+                const i = new ethers.Interface([abi]);
+                const decoded = i.decodeFunctionResult(fnName, decodedInput);
 
                 const result: Record<string, any> = {};
                 for (let index = 0; index < outputComponents.length; index++) {
@@ -26,16 +26,15 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
                     if (type.startsWith("uint") || type.startsWith("int")) {
                         try {
-                            // Try number first, fallback to BigInt for large values
                             const asNumber = Number(value.toString());
                             value = Number.isSafeInteger(asNumber) ? asNumber : BigInt(value.toString());
                         } catch {
                             value = BigInt(value.toString());
                         }
                     } else if (type === "bytes32" || type.startsWith("bytes")) {
-                        value = value.toString(); // keep hex string
+                        value = value.toString();
                     } else if (type === "address") {
-                        value = value.toLowerCase(); // normalize
+                        value = value.toLowerCase();
                     }
 
                     result[name] = value;

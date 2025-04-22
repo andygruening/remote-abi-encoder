@@ -8,25 +8,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
                 return getResponse(JSON.stringify({msg: 'options throughput'}))
             case "POST":
                 const payload = await context.request.json();
-                const functionName = payload.functionName as string;
-                const functionAbi = payload.abi as any[];
-                const data = payload.data as Record<string, any>;
+                const signature = payload.signature as string;
+                const values = payload.values as any[];
 
-                const func = functionAbi.find((f) => f.name === functionName);
-                if (!func) {
-                    throw new Error(`Function "${functionName}" not found in ABI`);
-                }
-
-                const arrayOfValues = func.inputs.map((param: any) => {
-                    const value = data[param.name];
-                    if (typeof value === 'undefined') {
-                        throw new Error(`Missing value for parameter "${param.name}"`);
-                    }
-                    return value;
-                });
-
-                const i = new ethers.Interface(functionAbi);
-                const encoded = i.encodeFunctionData(functionName, arrayOfValues);
+                const fnName = signature.split('(')[0].split(' ')[1];
+                const i = new ethers.Interface([signature]);
+                const encoded = i.encodeFunctionData(fnName, values);
 
                 return getResponse(JSON.stringify({encoded: encoded}));
             default:
